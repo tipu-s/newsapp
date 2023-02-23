@@ -10,7 +10,7 @@
         android:label="ArticleFragment" >
         <argument
             android:name="article"
-            app:argType="com.androiddevs.mvvmnewsapp.model.Article" />
+            app:argType="com.androiddevs.news.model.Article" />
     </fragment>
     <fragment
         android:id="@+id/breakingNewsFragment"
