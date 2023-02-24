@@ -9,8 +9,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.androiddevs.news.NewsApplication
 import com.androiddevs.news.R
 import com.androiddevs.news.adapter.NewsAdapter
+import com.androiddevs.news.api.RetrofitInstance
 import com.androiddevs.news.db.ArticleDatabase
 import com.androiddevs.news.repository.NewsRepository
 import com.androiddevs.news.ui.viewModel.SavedNewsViewModel
@@ -27,9 +29,9 @@ class SavedNewsFragment: Fragment(R.layout.fragment_saved_news) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val repository = NewsRepository(ArticleDatabase(context!!))
-        val viewModelProviderFactory = SavedNewsViewModelProviderFactory(repository)
-        viewModel = ViewModelProvider(this, viewModelProviderFactory).get(SavedNewsViewModel::class.java)
+        val appService = (requireActivity().application as NewsApplication).appService
+        viewModel = ViewModelProvider(this, appService.savedViewModelProviderFactory)
+            .get(SavedNewsViewModel::class.java)
 
         setupRecyclerView()
         newsAdapter.setOnItemClickListener {

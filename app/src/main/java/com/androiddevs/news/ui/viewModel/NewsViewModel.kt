@@ -15,6 +15,7 @@ import com.androiddevs.news.model.Article
 import com.androiddevs.news.model.NewsResponse
 import com.androiddevs.news.repository.NewsRepository
 import com.androiddevs.news.utility.Resource
+import com.androiddevs.news.utility.Utility.hasInternetConnection
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import okio.IOException
@@ -22,7 +23,7 @@ import retrofit2.Response
 
 class NewsViewModel(
     app: Application,
-    val repository: NewsRepository
+    private val repository: NewsRepository
 ): AndroidViewModel(app) {
 
     private val _breakingNews = MutableLiveData<Resource<NewsResponse>>()
@@ -42,7 +43,7 @@ class NewsViewModel(
     private suspend fun safeSearchNews(searchQuery: String) {
         searchNews.postValue(Resource.Loading())
         try {
-            if (hasInternetConnection()) {
+            if (hasInternetConnection(getApplication())) {
                 val response = repository.getAllNews(searchQuery, searchNewsPage)
                 searchNews.postValue(handleSearchNewsResponse(response))
             } else {
@@ -59,7 +60,7 @@ class NewsViewModel(
     private suspend fun safeBreakingNews(countryCode: String) {
         _breakingNews.value = Resource.Loading()
         try {
-            if (hasInternetConnection()) {
+            if (hasInternetConnection(getApplication())) {
                 repository.getBreakingNews(countryCode, breakingNewsPage).collect {
                     _breakingNews.value = handleBreakingNewsResponse(it)
                 }
@@ -110,33 +111,5 @@ class NewsViewModel(
 
     fun insertArticle(article: Article) = viewModelScope.launch {
         repository.insertArticle(article)
-    }
-
-    private fun hasInternetConnection(): Boolean {
-        val connectivityManager = getApplication<NewsApplication>().getSystemService(
-            Context.CONNECTIVITY_SERVICE
-        ) as ConnectivityManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val activeNetwork = connectivityManager.activeNetwork ?: return false
-            val capabilities = connectivityManager.getNetworkCapabilities(activeNetwork) ?: return false
-            return when{
-                capabilities.hasTransport(TRANSPORT_WIFI) -> true
-                capabilities.hasTransport(TRANSPORT_CELLULAR) -> true
-                capabilities.hasTransport(TRANSPORT_ETHERNET) -> true
-                else -> false
-            }
-        } else {
-            connectivityManager.activeNetworkInfo?.run {
-                return when(type){
-                    TYPE_WIFI-> true
-                    TYPE_MOBILE-> true
-                    TYPE_ETHERNET-> true
-                    else-> false
-                }
-            }
-
-            return false
-        }
     }
 }
