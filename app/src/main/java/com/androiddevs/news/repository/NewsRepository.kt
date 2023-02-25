@@ -1,6 +1,7 @@
 package com.androiddevs.news.repository
 
 import android.content.Context
+import com.androiddevs.news.NewsApplication
 import com.androiddevs.news.api.NewsApi
 import com.androiddevs.news.api.RetrofitInstance
 import com.androiddevs.news.db.ArticleDatabase
@@ -22,13 +23,17 @@ class NewsRepository(
         return flow<Resource<NewsResponse>> {
             emit(Resource.Loading())
             try{
-                val response = api.getBreakingNews()
-                if (response.isSuccessful) {
-                    response.body()?.let { newsResponse ->
-                        emit(Resource.Success(newsResponse))
+                if (Utility.hasInternetConnection(NewsApplication.instance)) {
+                    val response = api.getBreakingNews()
+                    if (response.isSuccessful) {
+                        response.body()?.let { newsResponse ->
+                            emit(Resource.Success(newsResponse))
+                        }
+                    } else {
+                        emit(Resource.Error(response.message()))
                     }
                 } else {
-                    emit(Resource.Error(response.message()))
+                    emit(Resource.Error("No Internet connection"))
                 }
             } catch (e: Exception) {
                 emit(Resource.Error(e.toString()))
@@ -36,8 +41,30 @@ class NewsRepository(
         }.flowOn(Dispatchers.IO)
     }
 
-    suspend fun getAllNews(queryString: String, pageNumber: Int) =
-        api.getAllNews(queryString, pageNumber)
+    suspend fun getAllNews(queryString: String, pageNumber: Int) : Flow<Resource<NewsResponse>> {
+        return flow<Resource<NewsResponse>> {
+            emit(Resource.Loading())
+            try{
+                if (Utility.hasInternetConnection(NewsApplication.instance)) {
+                    val response = api.getAllNews(queryString, pageNumber)
+                    if (response.isSuccessful) {
+                        response.body()?.let { newsResponse ->
+                            emit(Resource.Success(newsResponse))
+                        }
+                    } else {
+                        emit(Resource.Error(response.message()))
+                    }
+                } else {
+                    emit(Resource.Error("No Internet connection"))
+                }
+            } catch (e: Exception) {
+                emit(Resource.Error(e.toString()))
+            }
+        }.flowOn(Dispatchers.IO)
+    }
+
+
+        //api.getAllNews(queryString, pageNumber)
 
     suspend fun insertArticle(article: Article) = db.getArticleDao().insertArticle(article)
 

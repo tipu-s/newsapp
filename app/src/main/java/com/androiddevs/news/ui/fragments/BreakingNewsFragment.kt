@@ -14,6 +14,7 @@ import com.androiddevs.news.R
 import com.androiddevs.news.adapter.NewsAdapter
 import com.androiddevs.news.ui.NewsActivity
 import com.androiddevs.news.ui.viewModel.NewsViewModel
+import com.androiddevs.news.utility.Constants
 import com.androiddevs.news.utility.Constants.Companion.TOTAL_QUERY_SIZE
 import com.androiddevs.news.utility.Resource
 import kotlinx.android.synthetic.main.fragment_breaking_news.*
@@ -89,7 +90,7 @@ class BreakingNewsFragment: Fragment(R.layout.fragment_breaking_news) {
             val isNotLoadingAndNotLastPage = !isLoading && !isLastPage
             val isAtLastItem = firstVisibleItemPosition + totalVisibleItem >= totalItem
             val isNotAtBegining = firstVisibleItemPosition >= 0
-            val isTotalMoreThanVisible = totalItem <= TOTAL_QUERY_SIZE || true
+            val isTotalMoreThanVisible = totalItem <= Constants.TOTAL_QUERY_SIZE || true
 
             val shouldPaginate = isNotLoadingAndNotLastPage && isAtLastItem &&
                     isNotAtBegining && isTotalMoreThanVisible && isScrolling
@@ -100,7 +101,7 @@ class BreakingNewsFragment: Fragment(R.layout.fragment_breaking_news) {
 //                    " isNotAtBegining: $isNotAtBegining" +
 //                    " isTotalMoreThanVisible: $isTotalMoreThanVisible" +
 //                    " isScrolling: $isScrolling")
-//            Log.d("BreakingNewsFragment", "ShouldPaginate: $shouldPaginate")
+            Log.d("BreakingNewsFragment", "ShouldPaginate: $shouldPaginate")
             if (shouldPaginate) {
                 viewModel.getBreakingNews("us")
                 isScrolling = false

@@ -113,13 +113,13 @@ class SearchNewsFragment: Fragment(R.layout.fragment_search_news) {
 
             val shouldPaginate = isNotLoadingAndNotLastPage && isAtLastItem &&
                     isNotAtBegining && isTotalMoreThanVisible && isScrolling
-            Log.d("BreakingNewsFragment","isNotLoadingAndNotLastPage: $isNotLoadingAndNotLastPage" +
-                    " && isLoading: $isLoading" +
-                    " && isLastPage: $isLastPage" +
-                    " && isAtLastItem: $isAtLastItem" +
-                    " isNotAtBegining: $isNotAtBegining" +
-                    " isTotalMoreThanVisible: $isTotalMoreThanVisible" +
-                    " isScrolling: $isScrolling")
+//            Log.d("BreakingNewsFragment","isNotLoadingAndNotLastPage: $isNotLoadingAndNotLastPage" +
+//                    " && isLoading: $isLoading" +
+//                    " && isLastPage: $isLastPage" +
+//                    " && isAtLastItem: $isAtLastItem" +
+//                    " isNotAtBegining: $isNotAtBegining" +
+//                    " isTotalMoreThanVisible: $isTotalMoreThanVisible" +
+//                    " isScrolling: $isScrolling")
             Log.d("BreakingNewsFragment", "ShouldPaginate: $shouldPaginate")
             if (shouldPaginate) {
                 viewModel.getAllNews(etSearch.text.toString())

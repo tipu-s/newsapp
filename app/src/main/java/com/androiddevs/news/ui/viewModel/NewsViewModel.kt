@@ -9,6 +9,7 @@ import android.os.Build
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.androiddevs.news.NewsApplication
 import com.androiddevs.news.model.Article
@@ -22,17 +23,14 @@ import okio.IOException
 import retrofit2.Response
 
 class NewsViewModel(
-    app: Application,
     private val repository: NewsRepository
-): AndroidViewModel(app) {
-
+): ViewModel() {
     private val _breakingNews = MutableLiveData<Resource<NewsResponse>>()
     val breakingNews: LiveData<Resource<NewsResponse>> = _breakingNews
-
     var breakingNewsPage = 1
-    var breakingNewsResponse: NewsResponse? = null
 
-    val searchNews: MutableLiveData<Resource<NewsResponse>> = MutableLiveData()
+    private val _searchNews = MutableLiveData<Resource<NewsResponse>>()
+    val searchNews: LiveData<Resource<NewsResponse>> = _searchNews
     var searchNewsPage = 1
 
     init {
@@ -40,76 +38,15 @@ class NewsViewModel(
         getBreakingNews("us")
     }
 
-    private suspend fun safeSearchNews(searchQuery: String) {
-        searchNews.postValue(Resource.Loading())
-        try {
-            if (hasInternetConnection(getApplication())) {
-                val response = repository.getAllNews(searchQuery, searchNewsPage)
-                searchNews.postValue(handleSearchNewsResponse(response))
-            } else {
-                searchNews.postValue(Resource.Error("No Internet connection"))
-            }
-        } catch (t: Throwable) {
-            when(t) {
-                is IOException -> searchNews.postValue(Resource.Error("IO exception"))
-                else -> searchNews.postValue(Resource.Error("Conversion error"))
-            }
-        }
-    }
-
-    private suspend fun safeBreakingNews(countryCode: String) {
-        _breakingNews.value = Resource.Loading()
-        try {
-            if (hasInternetConnection(getApplication())) {
-                repository.getBreakingNews(countryCode, breakingNewsPage).collect {
-                    _breakingNews.value = it
-                }
-            } else {
-                _breakingNews.value = (Resource.Error("No Internet connection"))
-            }
-        } catch (t: Throwable) {
-            when(t) {
-                is IOException -> _breakingNews.value = (Resource.Error("IO exception"))
-                else -> _breakingNews.value = (Resource.Error("Conversion error"))
-            }
-        }
-    }
-
     fun getBreakingNews(countryCode: String) = viewModelScope.launch {
-        safeBreakingNews(countryCode)
+        repository.getBreakingNews(countryCode, breakingNewsPage++).collect {
+            _breakingNews.value = it
+        }
     }
 
     fun getAllNews(queryString: String) = viewModelScope.launch {
-        safeSearchNews(queryString)
-    }
-
-    private fun handleBreakingNewsResponse(response: Response<NewsResponse>): Resource<NewsResponse> {
-        if (response.isSuccessful) {
-            breakingNewsPage++
-            response.body()?.let {resultResponse ->
-                if (breakingNewsResponse == null) {
-                    breakingNewsResponse = resultResponse
-                } else {
-                    val oldArticle = breakingNewsResponse?.articles
-                    val newArticle = resultResponse.articles
-                    oldArticle?.addAll(newArticle)
-                }
-                return Resource.Success(breakingNewsResponse?:resultResponse)
-            }
+        repository.getAllNews(queryString, searchNewsPage++).collect {
+            _searchNews.value = it
         }
-        return Resource.Error(response.message())
-    }
-
-    private fun handleSearchNewsResponse(response: Response<NewsResponse>): Resource<NewsResponse> {
-        if (response.isSuccessful) {
-            response.body()?.let {resultResponse ->
-                return Resource.Success(resultResponse)
-            }
-        }
-        return Resource.Error(response.message())
-    }
-
-    fun insertArticle(article: Article) = viewModelScope.launch {
-        repository.insertArticle(article)
     }
 }

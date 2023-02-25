@@ -10,9 +10,9 @@ import java.io.Serializable
 data class Article(
     @PrimaryKey(autoGenerate = true)
     var id: Int? = null,
-    val author: String,
-    val publishedAt: String,
-    val source: Source,
-    val title: String,
-    val url: String
+    val author: String? = null,
+    val publishedAt: String? = null,
+    val source: Source? = null,
+    val title: String? = null,
+    val url: String? = null
 ) : Serializable
