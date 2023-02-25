@@ -30,13 +30,13 @@ class NewsRepository(
                             emit(Resource.Success(newsResponse))
                         }
                     } else {
-                        emit(Resource.Error(response.message()))
+                        emit(Resource.Error("Api response error: ${response.message()}"))
                     }
                 } else {
                     emit(Resource.Error("No Internet connection"))
                 }
             } catch (e: Exception) {
-                emit(Resource.Error(e.toString()))
+                emit(Resource.Error("Caught exception: ${e.toString()}"))
             }
         }.flowOn(Dispatchers.IO)
     }
