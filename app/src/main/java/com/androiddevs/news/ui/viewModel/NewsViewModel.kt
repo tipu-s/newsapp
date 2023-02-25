@@ -62,7 +62,7 @@ class NewsViewModel(
         try {
             if (hasInternetConnection(getApplication())) {
                 repository.getBreakingNews(countryCode, breakingNewsPage).collect {
-                    _breakingNews.value = handleBreakingNewsResponse(it)
+                    _breakingNews.value = it
                 }
             } else {
                 _breakingNews.value = (Resource.Error("No Internet connection"))
