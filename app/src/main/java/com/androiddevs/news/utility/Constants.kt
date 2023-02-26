@@ -9,8 +9,10 @@ class Constants {
         const val SEARCH_NEWS_TIME_DELAY = 500L
         const val TOTAL_QUERY_SIZE = 20
 
-        val IMAGES = listOf(R.drawable.headline,
+        val IMAGES = listOf(
+            R.drawable.headline,
             R.drawable.headline_2,
-            R.drawable.headline_3)
+            R.drawable.headline_3
+        )
     }
 }

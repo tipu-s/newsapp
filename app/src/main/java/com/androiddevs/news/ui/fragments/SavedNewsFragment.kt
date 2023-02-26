@@ -73,6 +73,8 @@ class SavedNewsFragment: Fragment(R.layout.fragment_saved_news) {
             attachToRecyclerView(rvSavedNews)
         }
 
+
+
         lifecycleScope.launch {
             viewModel.savedArticle.collectLatest {
                 newsAdapter.differ.submitList(it)

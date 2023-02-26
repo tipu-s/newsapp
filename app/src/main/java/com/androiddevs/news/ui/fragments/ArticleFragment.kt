@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.View
 import android.webkit.WebViewClient
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.androiddevs.news.NewsApplication
 import com.androiddevs.news.R
@@ -33,8 +34,15 @@ class ArticleFragment: Fragment(R.layout.fragment_article) {
             article?.let {
                 viewModel.insertArticle(it)
             }
-            Snackbar.make(view,"Article saved", Snackbar.LENGTH_SHORT).show()
         }
+
+        viewModel.dbInsertSuccess.observe(viewLifecycleOwner, Observer {
+            Snackbar.make(view,"Article saved", Snackbar.LENGTH_SHORT).show()
+        })
+
+        viewModel.dbInsertError.observe(viewLifecycleOwner, Observer {
+            Snackbar.make(view,"Article saved fail $it", Snackbar.LENGTH_SHORT).show()
+        })
     }
 
 

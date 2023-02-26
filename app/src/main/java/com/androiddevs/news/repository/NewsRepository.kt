@@ -1,6 +1,8 @@
 package com.androiddevs.news.repository
 
 import android.content.Context
+import android.database.sqlite.SQLiteException
+import android.util.Log
 import com.androiddevs.news.NewsApplication
 import com.androiddevs.news.api.NewsApi
 import com.androiddevs.news.api.RetrofitInstance
@@ -8,6 +10,7 @@ import com.androiddevs.news.db.ArticleDatabase
 import com.androiddevs.news.model.Article
 import com.androiddevs.news.model.NewsResponse
 import com.androiddevs.news.utility.Resource
+import com.androiddevs.news.utility.ResourceDB
 import com.androiddevs.news.utility.Utility
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -66,8 +69,25 @@ class NewsRepository(
 
         //api.getAllNews(queryString, pageNumber)
 
-    suspend fun insertArticle(article: Article) = db.getArticleDao().insertArticle(article)
-
-    suspend fun deleteArticle(article: Article) = db.getArticleDao().deleteArticle(article)
+    suspend fun insertArticle(article: Article) : Flow<ResourceDB<Article>> {
+        return flow {
+            try {
+                db.getArticleDao().insertArticle(article)
+                emit(ResourceDB.Success())
+            } catch (e: SQLiteException) {
+                emit(ResourceDB.Error("fail to insert in db: ${e.message}"))
+            }
+        }
+    }
+    suspend fun deleteArticle(article: Article) : Flow<ResourceDB<Article>> {
+        return flow {
+            try {
+                db.getArticleDao().deleteArticle(article)
+                emit(ResourceDB.Success())
+            } catch (e: SQLiteException) {
+                emit(ResourceDB.Error("fail to delete in db: ${e.message}"))
+            }
+        }
+    }
     fun getSavedArticles() = db.getArticleDao().getSavedArticles()
 }
