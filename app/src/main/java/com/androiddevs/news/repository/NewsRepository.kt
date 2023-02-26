@@ -14,6 +14,7 @@ import com.androiddevs.news.utility.ResourceDB
 import com.androiddevs.news.utility.Utility
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import retrofit2.Response
@@ -89,5 +90,15 @@ class NewsRepository(
             }
         }
     }
-    fun getSavedArticles() = db.getArticleDao().getSavedArticles()
+    suspend fun getSavedArticles() : Flow<ResourceDB<List<Article>>> {
+        return flow{
+            try{
+                db.getArticleDao().getSavedArticles().collect {
+                    emit(ResourceDB.Success(it))
+                }
+            } catch (e: SQLiteException) {
+                emit(ResourceDB.Error("SQL fetch data error: ${e.message}"))
+            }
+        }
+    }
 }

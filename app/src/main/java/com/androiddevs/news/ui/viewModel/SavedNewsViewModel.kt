@@ -31,13 +31,23 @@ class SavedNewsViewModel(
     private val _dbDeleteError = MutableLiveData<String>()
     val dbDeleteError: LiveData<String> = _dbDeleteError
 
+    private val _dbGetError = MutableLiveData<String>()
+    val dbGetError: LiveData<String> = _dbGetError
+
     init {
         getSavedArticles()
     }
 
     private fun getSavedArticles() = viewModelScope.launch {
         repository.getSavedArticles().collectLatest {
-            _savedArticle.value = it
+            when(it) {
+                is ResourceDB.Success -> {
+                    _savedArticle.value = it.data!!
+                }
+                is ResourceDB.Error -> {
+                    _dbGetError.value = it.message
+                }
+            }
         }
     }
 

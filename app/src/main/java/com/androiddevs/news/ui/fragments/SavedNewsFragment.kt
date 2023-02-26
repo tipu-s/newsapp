@@ -89,6 +89,10 @@ class SavedNewsFragment: Fragment(R.layout.fragment_saved_news) {
                 newsAdapter.differ.submitList(it)
             }
         }
+
+        viewModel.dbGetError.observe(viewLifecycleOwner, Observer {
+            Toast.makeText(activity, "$it", Toast.LENGTH_SHORT).show()
+        })
     }
 
     private fun setupRecyclerView() {
